@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Russian Matching Game</title>
+<style>
+body{
+  font-family:Arial,sans-serif;
+  max-width:900px;
+  margin:20px auto;
+  padding:20px;
+}
+h1{text-align:center;}
+.container{
+  display:flex;
+  gap:20px;
+}
+.column{
+  flex:1;
+}
+.card{
+  border:2px solid #4CAF50;
+  border-radius:10px;
+  padding:15px;
+  margin:10px 0;
+  cursor:pointer;
+  text-align:center;
+  font-size:24px;
+}
+.selected{
+  background:#dff0d8;
+}
+.matched{
+  background:#b7e4c7;
+}
+button{
+  margin-left:10px;
+}
+</style>
+</head>
+<body>
+
+<h1>Russian Matching Game</h1>
+<p>Tap 🔊 to hear the Russian word.</p>
+
+<div class="container">
+  <div class="column" id="ru"></div>
+  <div class="column" id="en"></div>
+</div>
+
+<p id="status"></p>
+
+<script>
+
+const pairs = [
+["парк","park"],
+["три","three"],
+["кровать","bed"],
+["преподаватель","teacher"],
+["дом","house"],
+["кошка","cat"]
+];
+
+let selected = null;
+let matched = 0;
+
+function shuffle(arr){
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function speak(word){
+  const msg = new SpeechSynthesisUtterance(word);
+  msg.lang = "ru-RU";
+  speechSynthesis.speak(msg);
+}
+
+const russian = shuffle(
+  pairs.map((p,i)=>({id:i,text:p[0]}))
+);
+
+const english = shuffle(
+  pairs.map((p,i)=>({id:i,text:p[1]}))
+);
+
+function clickCard(el,id){
+
+  if(el.classList.contains("matched")) return;
+
+  if(!selected){
+    selected={el,id};
+    el.classList.add("selected");
+    return;
+  }
+
+  if(selected.id===id && selected.el!==el){
+
+    selected.el.classList.remove("selected");
+
+    selected.el.classList.add("matched");
+    el.classList.add("matched");
+
+    matched++;
+
+    document.getElementById("status").innerText="Correct!";
+
+    if(matched===pairs.length){
+      document.getElementById("status").innerText =
+      "🎉 You matched all words!";
+    }
+
+  } else {
+    selected.el.classList.remove("selected");
+    document.getElementById("status").innerText =
+    "Try again.";
+  }
+
+  selected=null;
+}
+
+function createRussian(item){
+
+  const div=document.createElement("div");
+  div.className="card";
+
+  const word=document.createElement("span");
+  word.textContent=item.text;
+
+  const button=document.createElement("button");
+  button.textContent="🔊";
+
+  button.onclick=(e)=>{
+    e.stopPropagation();
+    speak(item.text);
+  };
+
+  div.appendChild(word);
+  div.appendChild(button);
+
+  div.onclick=()=>clickCard(div,item.id);
+
+  document.getElementById("ru").appendChild(div);
+}
+
+function createEnglish(item){
+
+  const div=document.createElement("div");
+
+  div.className="card";
+  div.textContent=item.text;
+
+  div.onclick=()=>clickCard(div,item.id);
+
+  document.getElementById("en").appendChild(div);
+}
+
+russian.forEach(createRussian);
+english.forEach(createEnglish);
+
+</script>
+
+</body>
+</html>
