@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Russian Matching Game</title>
+
 <style>
 body{
   font-family:Arial,sans-serif;
@@ -10,14 +11,20 @@ body{
   margin:20px auto;
   padding:20px;
 }
-h1{text-align:center;}
+
+h1{
+  text-align:center;
+}
+
 .container{
   display:flex;
   gap:20px;
 }
+
 .column{
   flex:1;
 }
+
 .card{
   border:2px solid #4CAF50;
   border-radius:10px;
@@ -27,21 +34,28 @@ h1{text-align:center;}
   text-align:center;
   font-size:24px;
 }
+
 .selected{
   background:#dff0d8;
 }
+
 .matched{
   background:#b7e4c7;
 }
-button{
-  margin-left:10px;
+
+#status{
+  margin-top:20px;
+  font-size:20px;
+  text-align:center;
 }
 </style>
 </head>
+
 <body>
 
 <h1>Russian Matching Game</h1>
-<p>Tap 🔊 to hear the Russian word.</p>
+
+<p>Click the Russian word to hear it.</p>
 
 <div class="container">
   <div class="column" id="ru"></div>
@@ -53,12 +67,12 @@ button{
 <script>
 
 const pairs = [
-["парк","park"],
-["три","three"],
-["кровать","bed"],
-["преподаватель","teacher"],
-["дом","house"],
-["кошка","cat"]
+  ["парк","park"],
+  ["три","three"],
+  ["кровать","bed"],
+  ["преподаватель","teacher"],
+  ["дом","house"],
+  ["кошка","cat"]
 ];
 
 let selected = null;
@@ -75,11 +89,17 @@ function speak(word){
 }
 
 const russian = shuffle(
-  pairs.map((p,i)=>({id:i,text:p[0]}))
+  pairs.map((p,i)=>({
+    id:i,
+    text:p[0]
+  }))
 );
 
 const english = shuffle(
-  pairs.map((p,i)=>({id:i,text:p[1]}))
+  pairs.map((p,i)=>({
+    id:i,
+    text:p[1]
+  }))
 );
 
 function clickCard(el,id){
@@ -87,12 +107,14 @@ function clickCard(el,id){
   if(el.classList.contains("matched")) return;
 
   if(!selected){
-    selected={el,id};
+
+    selected = {el,id};
+
     el.classList.add("selected");
     return;
   }
 
-  if(selected.id===id && selected.el!==el){
+  if(selected.id === id && selected.el !== el){
 
     selected.el.classList.remove("selected");
 
@@ -101,56 +123,60 @@ function clickCard(el,id){
 
     matched++;
 
-    document.getElementById("status").innerText="Correct!";
+    document.getElementById("status").innerText =
+      "Correct!";
 
-    if(matched===pairs.length){
+    if(matched === pairs.length){
+
       document.getElementById("status").innerText =
-      "🎉 You matched all words!";
+        "🎉 You matched all words!";
     }
 
   } else {
+
     selected.el.classList.remove("selected");
+
     document.getElementById("status").innerText =
-    "Try again.";
+      "Try again.";
   }
 
-  selected=null;
+  selected = null;
 }
 
 function createRussian(item){
 
-  const div=document.createElement("div");
-  div.className="card";
+  const div = document.createElement("div");
 
-  const word=document.createElement("span");
-  word.textContent=item.text;
+  div.className = "card";
 
-  const button=document.createElement("button");
-  button.textContent="🔊";
+  div.textContent = item.text;
 
-  button.onclick=(e)=>{
-    e.stopPropagation();
+  div.onclick = () => {
+
     speak(item.text);
+
+    clickCard(div,item.id);
   };
 
-  div.appendChild(word);
-  div.appendChild(button);
-
-  div.onclick=()=>clickCard(div,item.id);
-
-  document.getElementById("ru").appendChild(div);
+  document.getElementById("ru")
+    .appendChild(div);
 }
 
 function createEnglish(item){
 
-  const div=document.createElement("div");
+  const div = document.createElement("div");
 
-  div.className="card";
-  div.textContent=item.text;
+  div.className = "card";
 
-  div.onclick=()=>clickCard(div,item.id);
+  div.textContent = item.text;
 
-  document.getElementById("en").appendChild(div);
+  div.onclick = () => {
+
+    clickCard(div,item.id);
+  };
+
+  document.getElementById("en")
+    .appendChild(div);
 }
 
 russian.forEach(createRussian);
